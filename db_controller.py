@@ -1,11 +1,32 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_sesion
+from sqlalchemy.orm import registry, sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import MetaData,Table, Column,Integer, String
 
+Base = declarative_base()
 
+class Database:
+    engine = create_engine("sqlite:///example.db",connect_args={"check_same_thread": False},)
+    base = declarative_base()
+    metadata = MetaData
+    session = sessionmaker(bind = engine)
+    #thread-local session
+    current_session = scoped_session(__session)
 
-#(UserMixin,Base) for flask.login
-class User(Base):
+    @classmethod
+    def createall(self):
+        self.base.metadata.create_all(self.engine)
+
+    @classmethod
+    def createsuperuser(self,name:str = "admin",email:str = "admin@mail.com", password = "admin"):
+        role = "Admin"
+        user = User(name,email,password,role)
+        self.current_session.add(user) 
+        self.current_session.commit()
+        
+DB = Database()
+ #(UserMixin,DB.base) for flask.login
+class User(DB.base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
@@ -14,17 +35,8 @@ class User(Base):
     password = Column(String) 
     role = Column(String)
 
-    def __init__(name:str,email:str,password:str,role:str):
+    def __init__(self,name:str,email:str,password:str,role:str):
         self.name,self.email,self.password,self.role  = name,email,password,role
 
-class Database:
-    ENGINE = create_engine("sqlite:///example.db",connect_args={"check_same_thread": False},)
-    SESSION = sessionmaker(bind = ENGINE)
-    BASE = declarative_base()
-    #thread-local session
-    CURRENT_SESSION = scoped_sesion(SESSION)
-
-    @staticmethod
-    def createsuperuser(name:str = "admin",email:str = "admin@mail.com", password = "admin"):
-        CURRENT_SESSION.add(User(name,email,password,role = "Admin")) 
-        CURRENT_SESSION.commit()
+DB.createall()
+DB.createsuperuser()
