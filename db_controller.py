@@ -3,15 +3,13 @@ from sqlalchemy.orm import registry, sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import MetaData,Table, Column,Integer, String
 
-Base = declarative_base()
-
 class Database:
     engine = create_engine("sqlite:///example.db",connect_args={"check_same_thread": False},)
     base = declarative_base()
     metadata = MetaData
     session = sessionmaker(bind = engine)
     #thread-local session
-    current_session = scoped_session(__session)
+    current_session = scoped_session(session)
 
     @classmethod
     def createall(self):
