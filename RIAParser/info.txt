@@ -1,0 +1,16 @@
+Запуск через env
+1
+- Открыть cmd / bash в папке со скриптом
+2
+-'source bin/activate' для Linux
+-'\env\Scripts\activate.bat' для Windows
+3
+- python RiaParser.py
+ 
+Запуск без env
+1
+- Открыть cmd / bash в папке со скриптом
+2
+- pip install requrements.txt
+3
+- python RiaParser.py
